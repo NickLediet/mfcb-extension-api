@@ -1,5 +1,5 @@
-name: 'Setup Runner'
-description: 'Setups CI/CD env and executes test'
+name: 'Run Tests'
+description: 'Setups CI/CD env and executes tests'
 
 runs:
   on: push
