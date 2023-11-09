@@ -57,7 +57,6 @@ export default (req, res) => {
     getSourceListPage(searchURL)
         .then(async (searchSourceURL) => await getReport(searchSourceURL))
         .then(reportDataJson => {
-            console.log(reportDataJson)
             const response = {
                 ...reportDataJson,
                 baseURL,
