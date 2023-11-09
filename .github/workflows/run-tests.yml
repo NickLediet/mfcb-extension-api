@@ -1,8 +1,8 @@
 name: 'Run Tests'
+run-name: '${{ github.actor }} is running tests...'
 description: 'Setups CI/CD env and executes tests'
 
-runs:
-  on: push
+on: push
 
 inputs:
   node_version:
@@ -10,15 +10,16 @@ inputs:
     required: true
     default: '20.9.0'
 
-run-defined-frontend-tests:
-  runs-on: ubuntu-latest
-  defaults:
-    run:
-      working-director: './'
-  steps:
-    - uses: 'actions/checkout@v3'
-    - uses: 'actions/setup-node@v3'
-      with:
-        node_version: '${{inputs.node_version}}'
-    - run: npm ci
-    - run: npm test
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-director: './'
+    steps:
+      - uses: 'actions/checkout@v3'
+      - uses: 'actions/setup-node@v3'
+        with:
+          node_version: '${{inputs.node_version}}'
+      - run: npm ci
+      - run: npm test
