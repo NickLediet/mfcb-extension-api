@@ -4,18 +4,26 @@ import cheerio from 'cheerio'
 
 let resualtCache = {}
 
-const getBiasSearchURL = baseUrl => {
+export const getBiasSearchURL = baseUrl => {
+    if(!baseUrl) throw new Error('Missing required param "baseUrl".  Provide URL to be used in Media Fact Check Bias Search')
+
     const params = new URLSearchParams({ s: baseUrl }).toString()
+
     return `https://mediabiasfactcheck.com/?${params}`
 }
 
-const getSourceListPage = async (url) => {
+export const getSourceListPage = async (url) => {
+    if(!url) throw new Error('Missing required param "url".  Provide a Media Fact Check Bias search resualt URL')
+
     const { data: html } = await axios.get(url)
     const $ = cheerio.load(html)
-    return $('article.content-list .entry-title a').attr('href')
+
+    return $('article.content-list .entry-title a').attr('href') ?? null
 }
 
-const getReport = async (url) => {
+export const getReport = async (url) => {
+    if(!url) throw new Error('Missing required param "url".  Provide a Media Fact Check Bias source entry URL')
+
     const { data: html } = await axios.get(url)
     const $ = cheerio.load(html)
     const content = $('.entry-content .entry-content p:nth-of-type(2)')
@@ -29,7 +37,8 @@ const getReport = async (url) => {
         'credibilityRating'
     ]
     const reportElementValues = content.text().split('\n')
-        .map(kvp => kvp.split(':')[1].trim());
+        .filter(kvp => !/^\s+$/.test(kvp) && kvp)
+        .map(kvp => kvp.split(':')[1].trim())
 
     return reportDataKeys.reduce((reportData, key, index) => {
         reportData[key] = reportElementValues[index]
@@ -48,6 +57,7 @@ export default (req, res) => {
     getSourceListPage(searchURL)
         .then(async (searchSourceURL) => await getReport(searchSourceURL))
         .then(reportDataJson => {
+            console.log(reportDataJson)
             const response = {
                 ...reportDataJson,
                 baseURL,
